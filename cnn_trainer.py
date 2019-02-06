@@ -19,38 +19,33 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
 
-print(IMG_WIDTH)
 
 (train_X, train_Y, class_names) = preprocess_images.load_dataset_from_file('train_data.npy')
 
-# classes = np.unique(y_train)
-nClasses = len(class_names)
 
 #convert 28X28 img to matrix of size 28x28x1
 train_X = train_X.reshape(-1, IMG_WIDTH,IMG_HEIGHT, 1)
-# test_X = test_X.reshape(-1, 28,28, 1)
-
 
 # Change the labels from categorical to one-hot encoding
 train_Y_one_hot = to_categorical(train_Y)
-# test_Y_one_hot = to_categorical(test_Y)
 
 
-# Display the change for category label using one-hot encoding
-print('Original label:', train_Y[0])
-print('After conversion to one-hot:', train_Y_one_hot[0])
-
-#Split train data set into train and cross validation set
+#Split train data set into train, cross validation, and test set
 train_X,valid_X,train_label,valid_label = \
-    train_test_split(train_X, train_Y_one_hot, test_size=0.2, random_state=13)
+    train_test_split(train_X, train_Y_one_hot, test_size=0.4, random_state=13)
+valid_X, test_X, valid_label, test_Y_one_hot = \
+    train_test_split(valid_X, valid_label, test_size=0.5, random_state=13)
+test_Y = np.argmax(np.round(test_Y_one_hot),axis=1)
 
 print(train_X.shape, valid_X.shape, train_label.shape,valid_label.shape)
+print(test_X.shape, test_Y_one_hot.shape)
+print(test_Y.shape)
 
 
 
 #select sizes and number of epochs
-batch_size = 64
-epochs = 20
+batch_size = 50
+epochs = 30
 num_classes = len(class_names)
 
 # build model
@@ -85,9 +80,9 @@ waste_train = waste_model.fit(train_X, train_label, batch_size=batch_size,
 waste_model.save("waste_model_dropout.h5py")
 
 #evaluate model accuracy and loss
-# test_eval = waste_model.evaluate(test_X, test_Y_one_hot, verbose=0)
-# print('Test loss:', test_eval[0])
-# print('Test accuracy:', test_eval[1])
+test_eval = waste_model.evaluate(test_X, test_Y_one_hot, verbose=0)
+print('Test loss:', test_eval[0])
+print('Test accuracy:', test_eval[1])
 
 accuracy = waste_train.history['acc']
 val_accuracy = waste_train.history['val_acc']
@@ -106,15 +101,15 @@ plt.legend()
 plt.show()
 
 #make predictions
-# predicted_classes = waste_model.predict(test_X)
-# predicted_classes = np.argmax(np.round(predicted_classes),axis=1)
+predicted_classes = waste_model.predict(test_X)
+predicted_classes = np.argmax(np.round(predicted_classes),axis=1)
 
-# correct = np.where(predicted_classes==test_Y)[0]
-# incorrect = np.where(predicted_classes!=test_Y)[0]
+correct = np.where(predicted_classes==test_Y)[0]
+incorrect = np.where(predicted_classes!=test_Y)[0]
 
-# print("num_correct: %d, num_incorrect: %d", correct, incorrect)
+print("num_correct: %d, num_incorrect: %d", len(correct), len(incorrect))
 
-# #do a classification report
-# from sklearn.metrics import classification_report
-# target_names = ["Class {}".format(i) for i in range(num_classes)]
-# print(classification_report(test_Y, predicted_classes, target_names=target_names))
+#do a classification report
+from sklearn.metrics import classification_report
+target_names = ["Class {}".format(i) for i in range(num_classes)]
+print(classification_report(test_Y, predicted_classes, target_names=target_names))

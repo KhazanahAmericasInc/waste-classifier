@@ -1,3 +1,4 @@
 __pycache__/*
 train_data/*
 *.npy
+*.h5py
