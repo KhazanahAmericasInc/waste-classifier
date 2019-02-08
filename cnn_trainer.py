@@ -18,39 +18,44 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
+from keras.regularizers import l2
 
 
 (train_X, train_Y, class_names) = preprocess_images.load_dataset_from_file('train_data.npy')
+(test_X, test_Y, class_names_test) = preprocess_images.load_dataset_from_file('test_data.npy')
 
 
 #convert 28X28 img to matrix of size 28x28x1
-train_X = train_X.reshape(-1, IMG_WIDTH,IMG_HEIGHT, 1)
+train_X = train_X.reshape(-1, IMG_WIDTH,IMG_HEIGHT, 3)
+test_X = test_X.reshape(-1, IMG_WIDTH,IMG_HEIGHT, 3)
 
 # Change the labels from categorical to one-hot encoding
 train_Y_one_hot = to_categorical(train_Y)
+test_Y_one_hot = to_categorical(test_Y)
 
 
 #Split train data set into train, cross validation, and test set
 train_X,valid_X,train_label,valid_label = \
-    train_test_split(train_X, train_Y_one_hot, test_size=0.4, random_state=13)
-valid_X, test_X, valid_label, test_Y_one_hot = \
-    train_test_split(valid_X, valid_label, test_size=0.5, random_state=13)
-test_Y = np.argmax(np.round(test_Y_one_hot),axis=1)
+    train_test_split(train_X, train_Y_one_hot, test_size=0.2, random_state=13)
 
-print(train_X.shape, valid_X.shape, train_label.shape,valid_label.shape)
-print(test_X.shape, test_Y_one_hot.shape)
-print(test_Y.shape)
+print("train,valid shape", train_X.shape, valid_X.shape, train_label.shape,valid_label.shape)
+print(test_X.shape, test_Y_one_hot.shape, test_Y.shape)
 
 
 
 #select sizes and number of epochs
 batch_size = 50
-epochs = 30
+epochs = 50
 num_classes = len(class_names)
+reg_lambda = 0.001
+dropout = True
+rgb = True
 
-# build model
+
+# # build model
 waste_model=Sequential()
-waste_model.add(Conv2D(32, kernel_size=(3,3), activation='linear', input_shape=(IMG_WIDTH,IMG_HEIGHT,1),padding='same'))
+waste_model.add(Conv2D(32, kernel_size=(3,3), activation='linear', 
+    input_shape=(IMG_WIDTH,IMG_HEIGHT,3),padding='same'))
 waste_model.add(LeakyReLU(alpha=0.1))
 waste_model.add(MaxPooling2D((2,2),padding='same'))
 waste_model.add(Dropout(0.25))
@@ -63,10 +68,28 @@ waste_model.add(LeakyReLU(alpha=0.1))
 waste_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
 waste_model.add(Dropout(0.4))
 waste_model.add(Flatten())
-waste_model.add(Dense(128, activation='linear'))
+waste_model.add(Dense(128, activation='linear', activity_regularizer=l2(reg_lambda)))
 waste_model.add(LeakyReLU(alpha=0.1))  
-waste_model.add(Dropout(0.3))                
+waste_model.add(Dropout(0.5))                
 waste_model.add(Dense(num_classes, activation='softmax'))
+
+
+# waste_model=Sequential()
+# waste_model.add(Conv2D(32, kernel_size=(3,3), activation='linear', 
+#     input_shape=(IMG_WIDTH,IMG_HEIGHT,1),padding='same'))
+# waste_model.add(LeakyReLU(alpha=0.1))
+# waste_model.add(MaxPooling2D((2,2),padding='same'))
+# waste_model.add(Conv2D(128,(3,3),activation='linear',padding='same'))
+# waste_model.add(LeakyReLU(alpha=0.1))
+# waste_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
+# waste_model.add(Conv2D(128, (3, 3), activation='linear',padding='same'))
+# waste_model.add(LeakyReLU(alpha=0.1))                  
+# waste_model.add(MaxPooling2D(pool_size=(2, 2),padding='same'))
+# waste_model.add(Flatten())
+# waste_model.add(Dense(128, activation='linear'))
+# waste_model.add(LeakyReLU(alpha=0.1))            
+# waste_model.add(Dense(num_classes, activation='softmax'))
+
 
 #compile model
 waste_model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(),metrics=['accuracy'])
@@ -77,7 +100,10 @@ waste_train = waste_model.fit(train_X, train_label, batch_size=batch_size,
     epochs=epochs,verbose=1,validation_data=(valid_X, valid_label))
 
 #save trained model for later
-waste_model.save("waste_model_dropout.h5py")
+model_name = "waste_model2"+("_3d" if rgb else "") + ("_dropout" if dropout else "") + \
+    ("_reg"+str(reg_lambda) if reg_lambda!=0 else "")
+print("saved to:",model_name)
+waste_model.save(model_name + ".h5py")
 
 #evaluate model accuracy and loss
 test_eval = waste_model.evaluate(test_X, test_Y_one_hot, verbose=0)
@@ -107,9 +133,9 @@ predicted_classes = np.argmax(np.round(predicted_classes),axis=1)
 correct = np.where(predicted_classes==test_Y)[0]
 incorrect = np.where(predicted_classes!=test_Y)[0]
 
-print("num_correct: %d, num_incorrect: %d", len(correct), len(incorrect))
 
 #do a classification report
 from sklearn.metrics import classification_report
-target_names = ["Class {}".format(i) for i in range(num_classes)]
+target_names = ["Class {}".format(class_names_test[i]) for i in range(num_classes)]
 print(classification_report(test_Y, predicted_classes, target_names=target_names))
+print("num_correct: {}, num_incorrect: {}".format(len(correct), len(incorrect)))
