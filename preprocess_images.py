@@ -7,6 +7,9 @@ import sys
 from PIL import Image
 import os
 import random
+import keras
+from keras.utils import to_categorical
+import h5py
 
 train_dir = './train_data/'
 test_dir = './test_data/'
@@ -69,14 +72,16 @@ def display_data(X,y):
 def process_images_to_file(imdir):
     (X, y,classes) = resize_and_label(imdir)
     X = scale_X(X)
-    data = np.array([X, y, classes])
-    fname = get_end_slash(imdir) + '.npy'
+    X = X.reshape(-1, IMG_WIDTH,IMG_HEIGHT, 3)
+    one_hot_y = to_categorical(y)
+    data = np.array([X, y, one_hot_y, classes])
+    fname = get_end_slash(imdir) + str(IMG_WIDTH) + "x" + str(IMG_HEIGHT)+ '.npy'
     np.save(fname, data)
     print("saved to ", fname)
 
 def load_dataset_from_file(fname):
     dataset = np.load(fname)
-    return (dataset[0], dataset[1], dataset[2])
+    return (dataset[0], dataset[1], dataset[2], dataset[3])
 
 def append_data_batch(data, fname):
     prev_data = np.load(fname)
@@ -92,7 +97,7 @@ def load_batch(fname):
     batch = np.load(fname)
     return batch
 
-def filter_images(pth, subdirs):
+def filter_new_images(pth, subdirs):
     folders = glob(pth+"*/")
     classes = [get_end_slash(f) for f in folders]
     for i, folder in enumerate(folders):
@@ -146,7 +151,86 @@ def split_train_test(pth,subdirs, proportion):
             new_im_loc = new_dir + get_pic_name(image)
             os.rename(image, new_im_loc)
         print("new_train_len",len(glob(folder+"*.jpg")))
-        
+
+def to_h5py(pth):
+    folders = glob(pth+"*/")
+    classes = [get_end_slash(f) for f in folders]
+    input_fname = get_end_slash(pth) + str(IMG_WIDTH) + "x" + str(IMG_HEIGHT)+  '.h5'
+    if(os.path.isfile(input_fname)):
+        inp = input('overwrite file ' + input_fname + '?, y/n: ')
+        if inp.lower() =="y":
+            print("file will be overwritten")
+            os.remove(input_fname)
+        elif inp.lower()=="n":
+            input_fname = input("enter a new filename: ") + '.h5'
+            print(input_fname)
+        else:
+            print("incorrect input, preprocessing failed")
+            return     
+
+    #open hf
+    hf = h5py.File(input_fname)
+    all_images = glob(pth+"**/*.jpg",recursive=True)
+    n_images = len(all_images)
+  
+    #create dataset X and label list
+    X = hf.create_dataset(
+        name= 'X',
+        shape=(n_images,IMG_WIDTH, IMG_HEIGHT, 3),
+        maxshape=(None, IMG_WIDTH, IMG_HEIGHT,None),
+        compression="gzip",
+        compression_opts=9)
+    label_lis = []
+
+    for i, folder in enumerate(folders):
+        images = glob(folder+"*.jpg")
+        total_images = len(images)
+        print(classes[i],total_images)
+        for j, image_pth in enumerate(images):
+            img = cv2.imread(image_pth)
+            img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
+            X[i] = img
+            label_lis.append(i)
+            print("{}/{} fname = {}".format(j,total_images, get_pic_name(image_pth)))
+    hf.create_dataset(
+        name= 'y',
+        compression="gzip",
+        compression_opts=9,
+        data=label_lis)
+    
+    y_one_hot = to_categorical(np.array(label_lis))
+    hf.create_dataset(
+        name= 'y_one_hot',
+        compression="gzip",
+        compression_opts=9,
+        data=y_one_hot)
+
+    hf.close()
+
+# def process_images(imdir):
+#     (X, y,classes) = resize_and_label(imdir)
+#     X = scale_X(X)
+#     X = X.reshape(-1, IMG_WIDTH,IMG_HEIGHT, 3)
+#     one_hot_y = to_categorical(y)
+#     data = np.array([X, y, one_hot_y, classes])
+#     fname = get_end_slash(imdir) + str(IMG_WIDTH) + "x" + str(IMG_HEIGHT)+ '.npy'
+#     np.save(fname, data)
+#     print("saved to ", fname)
+
+
+def load_dataset(fname):
+    hf = h5py.File(fname, 'r')
+    print(hf.keys())
+    hf.close()
+
+def get_class_list():
+    folders = glob(train_dir+"*/")
+    classes = [get_end_slash(f) for f in folders]
+    return classes
+
+to_h5py(test_dir)
+# load_dataset("test_data200x200.h5")
+# load_dataset()
 
 # filter_images(image_dir, ['fruit'])
 # process_images_to_file(train_dir)

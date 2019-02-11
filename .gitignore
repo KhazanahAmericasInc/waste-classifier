@@ -3,3 +3,4 @@ train_data/*
 test_data/*
 *.npy
 *.h5py
+*.h5
