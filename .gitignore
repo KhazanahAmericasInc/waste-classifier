@@ -6,3 +6,10 @@ model_history/*
 *.npy
 *.h5py
 *.h5
+new_train_data/*
+new_test_data/*
+clumped_train_data/*
+clumped_test_data/*
+clumped_kitchen_train_data/*
+clumped_kitchen_test_data/*
+
