@@ -3,6 +3,7 @@ import tensorflow as tf
 import keras
 from keras.models import load_model
 from  preprocess_images import load_dataset, load_history, process_single_img
+from constants import *
 import itertools
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ from sklearn import svm, datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
+
 
 
 
@@ -120,18 +122,18 @@ def analyze_model(model_pth, hist_pth, test_set_pth, width,height, samp_test_dir
     #plot accuracy more specific to each class
     plot_confusion_matrix(test_Y, predicted_classes, classes, normalize=True)
 
-analyze_model("trained_models/waste_model_3d_in50x50.h5py", 
-    "model_history/waste_model_3d_in50x50.json",
-    "processed_datasets/test_data50x50.h5",50,50,samp_test_dir="test_classify/fruit116.jpg")
+# analyze_model("trained_models/waste_model_3d_in50x50.h5py", 
+#     "model_history/waste_model_3d_in50x50.json",
+#     "processed_datasets/test_data50x50.h5",50,50,samp_test_dir="test_classify/fruit116.jpg")
 
-analyze_model("trained_models/waste_model_3d_dropout_reg0.001_in50x50.h5py", 
-    "model_history/waste_model_3d_dropout_reg0.001_in50x50.json",
-    "processed_datasets/test_data50x50.h5",
-    50,50, samp_test_dir="test_classify/fruit116.jpg")
+# analyze_model("trained_models/waste_model_3d_dropout_reg0.001_in50x50.h5py", 
+#     "model_history/waste_model_3d_dropout_reg0.001_in50x50.json",
+#     "processed_datasets/test_data50x50.h5",
+#     50,50, samp_test_dir="test_classify/fruit116.jpg")
 
-analyze_model("trained_models/waste_model_3d_dropout_reg0.001_in28x28.h5py", 
-    "model_history/waste_model_3d_dropout_reg0.001_in28x28.json",
-    "processed_datasets/test_data28x28.h5",
+analyze_model("trained_models/waste_model_clumped_3d_dropout_reg0.001_in28x28.h5py", 
+    "model_history/waste_model_clumped_3d_dropout_reg0.001_in28x28.json",
+    "processed_datasets/clumped_test_data28x28x3.h5",
     28,28, samp_test_dir="test_classify/fruit116.jpg")
 
 #for demo
