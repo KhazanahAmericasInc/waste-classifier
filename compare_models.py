@@ -14,20 +14,26 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
 
-
-
-
-
+"""
+This function prints and plots the confusion matrix.
+Normalization can be applied by setting `normalize=True`.
+inputs: y_test - the true labels
+        y_pred - predicted labels from the model
+        classes - list of classes
+        normalize - set to true if you want the output of the confusion matrix to be normalized
+        cmap - the color scheme of the output
+"""
 def plot_confusion_matrix(y_test, y_pred, classes,
                           normalize=False,
                           title='Confusion matrix',
                           cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
-    """
+    #create figure
     plt.figure()
+
+    #get confusion matrix with the actual labels and the predicted labels from scikit learn
     cm = confusion_matrix(y_test, y_pred)
+
+    #print with 2 decimals of precision
     np.set_printoptions(precision=2)
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -35,27 +41,33 @@ def plot_confusion_matrix(y_test, y_pred, classes,
     else:
         print('Confusion matrix, without normalization')
 
+    #print the confusion matrix
     print(cm)
 
+    #set up the plot
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
     plt.xticks(tick_marks, classes, rotation=45)
     plt.yticks(tick_marks, classes)
-
     fmt = '.2f' if normalize else 'd'
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
         plt.text(j, i, format(cm[i, j], fmt),
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
-
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
+
+    #show the plot
     plt.show()
 
+'''
+given a model, input images, and labels, predict classes and also show the precision and recall based 
+classification report
+'''
 def predict_and_report(model, test_x, test_y, class_names):
     predicted_classes = model.predict(test_x)
     predicted_classes = np.argmax(np.round(predicted_classes),axis=1)
@@ -65,6 +77,9 @@ def predict_and_report(model, test_x, test_y, class_names):
     print("num_correct: {}, num_incorrect: {}".format(len(correct), len(incorrect)))
     return predicted_classes
 
+'''
+plot the history of the training model
+'''
 def display_test_cvdata_curve(history):
     epochs = range(len(history['acc']))
     plt.plot(epochs, history['acc'], 'bo', label='Training accuracy')
@@ -78,18 +93,21 @@ def display_test_cvdata_curve(history):
     plt.legend()
     plt.show()
 
+'''
+predict the output of a single image
+'''
 def predict_single_img(image_path, width, height, model, classes):
     img = process_single_img(image_path,width, height)
     prediction = model.predict(np.array([img]))
     print(np.argmax(prediction))
     pred=np.argmax(prediction)
     pred_class = classes[pred]
-    # display_single_img(img, pred_class)
     return pred_class
 
 
-
-
+'''
+display a single image given the image array and the predicted class
+'''
 def display_single_img(X,pred_class):
     plt.figure(figsize=[5,5])
     plt.plot()
@@ -97,6 +115,16 @@ def display_single_img(X,pred_class):
     plt.title("Class : {}".format(pred_class))
     plt.show()
 
+'''
+analyze a particular model; iee show the model training history, make predictions, predict on a 
+single image, and show the confusion matrix
+inputs: model_pth - string with the path to the model
+        hist_pth - string with the path to the model training history
+        test_set_pth - string with the path to the preprocessed test set
+        width - the width of the input images
+        height - the height of the input images
+        samp_test_dir - string with path to directory to test model on
+'''
 def analyze_model(model_pth, hist_pth, test_set_pth, width,height, samp_test_dir=None):
     #1. load model and history
     model = load_model(model_pth)
