@@ -23,10 +23,10 @@ from keras.regularizers import l2
 
 #preprocess the data and load it up
 (train_X, train_Y, train_Y_one_hot, class_names) = preprocess_images.load_dataset(
-    'processed_datasets/clumped_kitchen_train_data'+str(IMG_WIDTH)
+    'processed_datasets/clumped_kitchen_train_data_v3'+str(IMG_WIDTH)
     +'x' + str(IMG_HEIGHT)+ 'x'+str(CHANNELS) +'.h5')
 (test_X, test_Y, test_Y_one_hot, class_names_test) = preprocess_images.load_dataset(
-    'processed_datasets/clumped_kitchen_train_data'+str(IMG_WIDTH)
+    'processed_datasets/clumped_kitchen_train_data_v3'+str(IMG_WIDTH)
     +'x' + str(IMG_HEIGHT)+ 'x'+str(CHANNELS) + '.h5')
 
 #used to determine number of output classes:
@@ -44,7 +44,7 @@ dropout = True
 
 # # build models:
 
-'''custom model''''
+'''custom model'''
 #build a sequential model i.e. a model with layers arranged in a linear manner
 waste_model=Sequential()
 #Add the first convolutional layer, which helps smooth over the image
@@ -200,7 +200,7 @@ waste_train = waste_model.fit(train_X, train_label, batch_size=BATCH_SIZE,
     epochs=EPOCHS,verbose=1,validation_data=(valid_X, valid_label))
 
 #save trained model for later
-model_name = "waste_model_clumped"+("_3d" if CHANNELS==3 else "_bw") + ("_dropout" if dropout else "") + \
+model_name = "waste_model_clumped_v3"+("_3d" if CHANNELS==3 else "_bw") + ("_dropout" if dropout else "") + \
     ("_reg"+str(reg_lambda) if reg_lambda!=0 else "") +"_in" + str(IMG_WIDTH)+"x"+str(IMG_HEIGHT)
 print("saved to:",model_name)
 waste_model.save("trained_models/" + model_name + ".h5py")

@@ -13,8 +13,8 @@ import h5py
 import json
 
 #declare the directories that hold the training and test data sets
-train_dir = './clumped_kitchen_train_data/'
-test_dir = './clumped_kitchen_test_data/'
+train_dir = './clumped_kitchen_train_data_v3/'
+test_dir = './clumped_kitchen_test_data_v3/'
 
 #strip the folder name from a path
 def get_end_slash(f):
@@ -425,10 +425,10 @@ def add_noise(img):
     out[coords] = 1
 
     #calculate the number of pixels to make black
-    num_pepper = np.ceil(amount* image.size * (1. - s_vs_p))
+    num_pepper = np.ceil(amount* img.size * (1. - s_vs_p))
     #set the randomly selected pixels to black
     coords = [np.random.randint(0, i - 1, int(num_pepper))
-                for i in image.shape]
+                for i in img.shape]
     out[coords] = 0
 
     return out
@@ -495,6 +495,26 @@ def augment_dataset(pth, subdirs, to_size):
                 imname = im_store_dir+ pname[:pname.index(".jpg")] + "_transform"+str(ind)+".jpg"
                 cv2.imwrite(imname,transformed_img)
                 print(imname)
+
+'''
+create the needed directories for all the code to work properly
+'''
+def create_needed_dirs():
+    dirs = ["./trained_models/", "./model_history/","./processed_datasets/", "./test_classify/"]
+    for d in dirs:
+        if not os.path.exists(d):
+            os.makedirs(d)
+            print("created", d)
+
+# create_needed_dirs()
+
+# split_train_test(train_dir,test_dir,"all",0.25)
+# augment_dataset(train_dir,"all",200)
+# augment_dataset(test_dir,"all",50)
+
+# to_h5py(train_dir)
+# to_h5py(test_dir)
+
 
 # (X,y,y_oh,classes) = load_dataset("processed_datasets/clumped_kitchen_train_data64x64x3.h5")
 # display_data(X,y)

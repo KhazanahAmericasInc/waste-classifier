@@ -159,10 +159,10 @@ def analyze_model(model_pth, hist_pth, test_set_pth, width,height, samp_test_dir
 #     "processed_datasets/test_data50x50.h5",
 #     50,50, samp_test_dir="test_classify/fruit116.jpg")
 
-analyze_model("trained_models/waste_model_clumped_3d_dropout_reg0.001_in28x28.h5py", 
-    "model_history/waste_model_clumped_3d_dropout_reg0.001_in28x28.json",
-    "processed_datasets/clumped_test_data28x28x3.h5",
-    28,28, samp_test_dir="test_classify/fruit116.jpg")
+analyze_model("trained_models/waste_model_clumped_v3_3d_dropout_reg0.001_in64x64.h5py", 
+    "model_history/waste_model_clumped_v3_3d_dropout_reg0.001_in64x64.json",
+    "processed_datasets/clumped_kitchen_test_data_v364x64x3.h5",
+    64,64, samp_test_dir="test_classify/fruit116.jpg")
 
 #for demo
 
