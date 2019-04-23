@@ -12,4 +12,7 @@ clumped_train_data/*
 clumped_test_data/*
 clumped_kitchen_train_data/*
 clumped_kitchen_test_data/*
-
+clumped_kitchen_test_data_v3/*
+clumped_kitchen_train_data_v2/*
+clumped_kitchen_train_data_v3/*
+raspberry_pi_interface/src/__pycache__/*
