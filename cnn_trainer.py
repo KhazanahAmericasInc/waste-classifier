@@ -26,7 +26,7 @@ from keras.regularizers import l2
     'processed_datasets/clumped_kitchen_train_data_v3'+str(IMG_WIDTH)
     +'x' + str(IMG_HEIGHT)+ 'x'+str(CHANNELS) +'.h5')
 (test_X, test_Y, test_Y_one_hot, class_names_test) = preprocess_images.load_dataset(
-    'processed_datasets/clumped_kitchen_train_data_v3'+str(IMG_WIDTH)
+    'processed_datasets/clumped_kitchen_test_data_v3'+str(IMG_WIDTH)
     +'x' + str(IMG_HEIGHT)+ 'x'+str(CHANNELS) + '.h5')
 
 #used to determine number of output classes:
