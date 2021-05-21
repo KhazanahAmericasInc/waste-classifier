@@ -72,7 +72,7 @@ skywriter==0.0.7
 sn3218==1.2.7
 spidev==3.3
 tensorboard==1.11.0
-tensorflow==1.11.0
+tensorflow==2.5.0
 termcolor==1.1.0
 thonny==2.1.16
 touchphat==0.0.1
