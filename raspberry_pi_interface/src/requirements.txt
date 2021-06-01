@@ -77,6 +77,6 @@ termcolor==1.1.0
 thonny==2.1.16
 touchphat==0.0.1
 twython==3.4.0
-urllib3==1.19.1
+urllib3==1.26.5
 virtualenv==16.4.0
 Werkzeug==0.14.1
