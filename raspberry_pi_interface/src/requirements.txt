@@ -34,7 +34,7 @@ mote==0.0.3
 motephat==0.0.2
 numpy==1.16.2
 oauthlib==2.0.1
-opencv-python==3.4.4.19
+opencv-python==3.4.7.28
 pgzero==1.2
 phatbeat==0.1.0
 pianohat==0.0.5
