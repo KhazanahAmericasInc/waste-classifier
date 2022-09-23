@@ -43,7 +43,7 @@ picraft==1.0
 piglow==1.2.4
 pigpio==1.38
 Pillow==4.0.0
-protobuf==3.6.1
+protobuf==3.18.3
 pyasn1==0.1.9
 pycrypto==2.6.1
 pygame==1.9.3
